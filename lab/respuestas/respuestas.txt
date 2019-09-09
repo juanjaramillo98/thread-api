@@ -1,0 +1,42 @@
+1.Primero codifique main-race.c. Examine el código de manera que usted pueda ver (ojalá de manera obvia) un data race en el código. 
+  Ahora ejecute helgrind (al teclear valgrind --tool=helgrind ./main-race) y vea como este programa reporta los data races. 
+  ¿Se muestran las líneas de código involucradas?, ¿Qué otra información entrega este programa?
+  
+R// no, pero se muestra el nombre de la variable que produce el race condition, ademas parece que da la direccion de las 
+lineas de codigo ya compilado donde se se puede producir el race condition (PruebaSinMutex.png en imagenes)
+
+
+2.¿Qué ocurre cuando usted elimina una de las líneas que generan problemas en el código? 
+  Ahora agrege un lock alrededor de las actualizaciones de la variable compartida, y entonces alrededor de ambas. 
+  ¿Qué reporta helgrind en cada uno de estos casos?
+
+R//cuando se elimina literalmente la funcion que produce el race condition (balance++) el programa no reporta ningun posible problema (luego-de-quitar-la-zona-critica.png en imagenes)
+   cuando se implementan locks reporta 0 errores pero dice que 7 errores fueron suprimidos de 7 existentes (compilado con locks.png en imagenes) a diferencia de el primero donde no reporto errores
+	
+
+3.Ahora observe main-deadlock.c. Examine el código. Este código tiene un problema conocido como deadlock. 
+  ¿Puede ver que problema podrá este tener?
+
+R//por una espera circular por el orden de obtencion de los locks puede existir un deadlock
+
+
+4.Ahora ejecute helgrind en este código. ¿Qué reporta helgrind?
+
+R// reporta un error y ademas muestra que el error podria ser con la optencion de m1 m2 los lock del codigo
+
+5.Ahora ejecute helgrind en main-deadlock-global.c. Examine el código. 
+  ¿Tiene este el mismo problema que main-deadlock.c? ¿Muestra helgrind el mismo reporte de error?
+  ¿Qué dice esto a cerca de herramientas como helgrind?
+
+R//reporta el mismo error, pero al realizar el analisis del codigo se puede ver que el deadlock fue solucionado, puedo suponer que el la herramienta de analisis, se basa en el orden de optencion de los lock y 
+   el orden de liberacion, por lo cual si se soluciona el error con otra tecnica que no sea cambiar el orden la herrameinta no lo detectara
+
+6.Ahora observe main-signal.c. Este código usa una variable (done) para señalar que el hijo esta hecho y que el padre puede continuar. 
+  ¿Por qué este códido es ineficiente? (En que termina el padre dedicando su tiempo, si el hijo toma una gran cantidad de tiempo en completarse). 
+
+R//es ineficiente porque el padre se quedara preguntado sobre la variable, loque nos generara un proceso que hace uso del procesador sin hacer nada y si el hijo se demora mucho sera un proceso 
+   que usara el prosesador sin parar asta que el hijo lo deje seguir  
+
+7.Ahora ejecute helgrind para este programa. ¿Qué reporta helgrind?, ¿Es correcto el código?
+
+R//La herramienta reporta una gran cantidad de errores debido a los race condition que se pueden generar. (compilando pruebas en main-signal.png en imagenes)
